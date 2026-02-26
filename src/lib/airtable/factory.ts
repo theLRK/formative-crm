@@ -1,4 +1,3 @@
-import { getEnv } from '@/lib/env';
 import {
   AirtableClient,
   EmailsRepository,
@@ -8,11 +7,18 @@ import {
   UsersRepository,
 } from '.';
 
+function requireAirtableEnv(name: 'AIRTABLE_API_KEY' | 'AIRTABLE_BASE_ID'): string {
+  const value = process.env[name];
+  if (!value || !value.trim()) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value.trim();
+}
+
 export function createRepositories() {
-  const env = getEnv();
   const client = new AirtableClient({
-    apiKey: env.AIRTABLE_API_KEY,
-    baseId: env.AIRTABLE_BASE_ID,
+    apiKey: requireAirtableEnv('AIRTABLE_API_KEY'),
+    baseId: requireAirtableEnv('AIRTABLE_BASE_ID'),
   });
 
   return {
@@ -23,4 +29,3 @@ export function createRepositories() {
     logs: new LogsRepository(client),
   };
 }
-

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createRepositories } from '@/lib/airtable';
-import { getEnv } from '@/lib/env';
 import { buildApiError } from '@/lib/errors';
 import { sendGmailMessage } from '@/lib/gmail';
 import {
@@ -12,6 +11,14 @@ import {
   normalizeLeadWebhookPayload,
 } from '@/lib/leads';
 import { leadWebhookSchema } from '@/lib/validation';
+
+function readPremiumBudgetThreshold(): number {
+  const raw = process.env.PREMIUM_BUDGET_THRESHOLD?.trim();
+  if (!raw) return 100_000_000;
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed <= 0) return 100_000_000;
+  return parsed;
+}
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const rawPayload = await request.json().catch(() => null);
@@ -38,13 +45,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const env = getEnv();
     const repositories = createRepositories();
     const result = await processLeadWebhook(parsed.data, {
       repositories,
       sendInitialEmail: sendGmailMessage,
       scoringConfig: {
-        premiumBudgetThreshold: env.PREMIUM_BUDGET_THRESHOLD,
+        premiumBudgetThreshold: readPremiumBudgetThreshold(),
       },
     });
     markIdempotencyKeyProcessed(parsed.data.idempotencyKey);
@@ -78,6 +84,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json(buildApiError('INTERNAL_ERROR', 'Lead created but initial email failed'), {
         status: 502,
       });
+    }
+    if (error instanceof Error) {
+      if (error.message.includes('Missing required environment variable: AIRTABLE_')) {
+        return NextResponse.json(
+          buildApiError('INTERNAL_ERROR', 'Airtable environment variables are missing'),
+          { status: 500 },
+        );
+      }
+      if (error.message.includes('Airtable request failed')) {
+        return NextResponse.json(
+          buildApiError(
+            'INTERNAL_ERROR',
+            'Airtable request failed. Verify base ID, API key scopes, table names, and required fields.',
+          ),
+          { status: 500 },
+        );
+      }
     }
     return NextResponse.json(buildApiError('INTERNAL_ERROR', 'Failed to process webhook'), {
       status: 500,
