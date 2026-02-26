@@ -21,7 +21,7 @@
   "author": "Samuel",
   "license": "ISC",
   "engines": {
-    "node": "20.11.1"
+    "node": "20"
   },
   "dependencies": {
     "@sentry/nextjs": "7.101.0",

@@ -69,6 +69,7 @@ export default function AdminLoginPage() {
             <input
               id="email"
               type="email"
+              autoComplete="email"
               required
               value={email}
               onChange={(event) => setEmail(event.target.value)}
@@ -84,6 +85,7 @@ export default function AdminLoginPage() {
             <input
               id="password"
               type="password"
+              autoComplete="current-password"
               required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
