@@ -1,0 +1,317 @@
+{
+    "id":  "CIpCMsBZ",
+    "type":  "quiz",
+    "title":  "My branded typeform",
+    "workspace":  {
+                      "href":  "https://api.typeform.com/workspaces/f64Wwt"
+                  },
+    "theme":  {
+                  "href":  "https://api.typeform.com/themes/qHWOQ7"
+              },
+    "settings":  {
+                     "language":  "en",
+                     "progress_bar":  "proportion",
+                     "meta":  {
+                                  "allow_indexing":  false
+                              },
+                     "hide_navigation":  false,
+                     "is_public":  true,
+                     "is_trial":  false,
+                     "show_progress_bar":  true,
+                     "show_typeform_branding":  true,
+                     "are_uploads_public":  false,
+                     "show_time_to_complete":  true,
+                     "show_number_of_submissions":  false,
+                     "show_cookie_consent":  false,
+                     "show_question_number":  true,
+                     "show_key_hint_on_choices":  true,
+                     "autosave_progress":  true,
+                     "free_form_navigation":  false,
+                     "use_lead_qualification":  false,
+                     "pro_subdomain_enabled":  false,
+                     "auto_translate":  true,
+                     "partial_responses_to_all_integrations":  true
+                 },
+    "thankyou_screens":  [
+                             {
+                                 "id":  "ZrZs05Q2cgUE",
+                                 "ref":  "9756387b-1672-455c-9ca7-874253b23281",
+                                 "title":  "Thank you. Weâ??re reviewing your preferences.",
+                                 "type":  "thankyou_screen",
+                                 "properties":  {
+                                                    "show_button":  true,
+                                                    "share_icons":  true,
+                                                    "button_mode":  "default_redirect",
+                                                    "button_text":  "Submit and View Matches",
+                                                    "description":  "Our system is matching you with properties that align with your budget and timeline. Youâ??ll receive an email shortly with curated options."
+                                                }
+                             },
+                             {
+                                 "id":  "DefaultTyScreen",
+                                 "ref":  "default_tys",
+                                 "title":  "Thanks for completing this typeform\nNow *create your own* â?? it\u0027s free, easy, \u0026 beautiful",
+                                 "type":  "thankyou_screen",
+                                 "properties":  {
+                                                    "show_button":  true,
+                                                    "share_icons":  false,
+                                                    "button_mode":  "default_redirect",
+                                                    "button_text":  "Create a *typeform*"
+                                                },
+                                 "attachment":  {
+                                                    "type":  "image",
+                                                    "href":  "https://public-assets.typeform.com/public/admin/2dpnUBBkz2VN.gif"
+                                                }
+                             }
+                         ],
+    "fields":  [
+                   {
+                       "id":  "nxFgI7wgEPhJ",
+                       "title":  "Find Your Perfect Lagos Property",
+                       "ref":  "060da108-8dc1-402d-8ed5-e84b935ae2cb",
+                       "properties":  {
+                                          "description":  "Share your requirements and our team will connect you with premium, vetted properties tailored to your needs and timeline.",
+                                          "button_text":  "Continue",
+                                          "hide_marks":  false
+                                      },
+                       "type":  "statement"
+                   },
+                   {
+                       "id":  "BO8x5fgg8RwC",
+                       "title":  "What is your full name?",
+                       "ref":  "06ea7c11-8020-40ac-96c0-31a0f69e3036",
+                       "properties":  {
+
+                                      },
+                       "validations":  {
+                                           "required":  true
+                                       },
+                       "type":  "short_text"
+                   },
+                   {
+                       "id":  "pnostcMC0Mr7",
+                       "title":  "What\u0027s your email address?",
+                       "ref":  "6af29353-48e7-46f3-b851-d45406107c28",
+                       "properties":  {
+
+                                      },
+                       "validations":  {
+                                           "required":  true
+                                       },
+                       "type":  "email"
+                   },
+                   {
+                       "id":  "vUeplXz7YLhp",
+                       "title":  "Whatâ??s your phone number?",
+                       "ref":  "d19f6562-f02c-479c-8c12-1a496d2f4e58",
+                       "properties":  {
+                                          "description":  "We may call or WhatsApp you for faster property scheduling.",
+                                          "default_country_code":  "US"
+                                      },
+                       "validations":  {
+                                           "required":  true
+                                       },
+                       "type":  "phone_number"
+                   },
+                   {
+                       "id":  "qFSeII9JilJ6",
+                       "title":  "What is your budget?",
+                       "ref":  "d8ba6dd1-b292-45f9-92c0-f2b3251f90ac",
+                       "properties":  {
+
+                                      },
+                       "validations":  {
+                                           "required":  true
+                                       },
+                       "type":  "number"
+                   },
+                   {
+                       "id":  "IBIFQdG2L4Im",
+                       "title":  "Which location do you prefer?",
+                       "ref":  "20454b3e-3f39-4e7b-b1ca-d35a12715f92",
+                       "properties":  {
+
+                                      },
+                       "validations":  {
+                                           "required":  true
+                                       },
+                       "type":  "short_text"
+                   },
+                   {
+                       "id":  "aC7AsYbzeK76",
+                       "title":  "How many bedrooms do you need?",
+                       "ref":  "d7aca62a-9fea-4979-8e29-b27396fb8704",
+                       "properties":  {
+                                          "randomize":  false,
+                                          "allow_multiple_selection":  false,
+                                          "allow_other_choice":  false,
+                                          "vertical_alignment":  true,
+                                          "choices":  [
+                                                          {
+                                                              "id":  "ms72DO09DC8G",
+                                                              "ref":  "d4f431b2-6637-4f5b-b13c-4534f352ff6e",
+                                                              "label":  "1 Bedroom"
+                                                          },
+                                                          {
+                                                              "id":  "EpBjPTIXwpRK",
+                                                              "ref":  "19bd3012-0ef1-4b3c-be3d-073d7a287a60",
+                                                              "label":  "2 Bedrooms"
+                                                          },
+                                                          {
+                                                              "id":  "LpUT5CHJoNhv",
+                                                              "ref":  "5c55c330-9c71-43e1-b756-6deffa7ee121",
+                                                              "label":  "3 Bedrooms"
+                                                          },
+                                                          {
+                                                              "id":  "nDIiFZBk2nNX",
+                                                              "ref":  "eebb8e68-dc93-4dfa-86c4-1b548fe745d1",
+                                                              "label":  "4 Bedrooms"
+                                                          },
+                                                          {
+                                                              "id":  "0pIxp1kZpYDx",
+                                                              "ref":  "f6f9089e-5558-44ff-991a-3c44f216697d",
+                                                              "label":  "5+ Bedrooms"
+                                                          }
+                                                      ]
+                                      },
+                       "validations":  {
+                                           "required":  true
+                                       },
+                       "type":  "multiple_choice"
+                   },
+                   {
+                       "id":  "dngu5AG5UOVz",
+                       "title":  "When would you like to make your purchase?",
+                       "ref":  "4215cc7f-de11-4c90-890a-c3f37acb2874",
+                       "properties":  {
+                                          "randomize":  false,
+                                          "allow_multiple_selection":  false,
+                                          "allow_other_choice":  false,
+                                          "vertical_alignment":  true,
+                                          "choices":  [
+                                                          {
+                                                              "id":  "V8ZDfggxte78",
+                                                              "ref":  "2a3a9ecb-0014-4036-a34d-d61322f15233",
+                                                              "label":  "Immediately"
+                                                          },
+                                                          {
+                                                              "id":  "eN3vQkGZGZyl",
+                                                              "ref":  "3246f7bf-c595-492e-9b34-04a7a2c25a74",
+                                                              "label":  "Within 3 months"
+                                                          },
+                                                          {
+                                                              "id":  "zTmGuYJqVEjQ",
+                                                              "ref":  "44e405b9-73c5-4e76-a377-5163c775bde4",
+                                                              "label":  "3â??6 months"
+                                                          },
+                                                          {
+                                                              "id":  "Fq9QW0Ddw1fX",
+                                                              "ref":  "a396b372-8896-4cbe-aa09-de796333af54",
+                                                              "label":  "6+ months"
+                                                          }
+                                                      ]
+                                      },
+                       "validations":  {
+                                           "required":  true
+                                       },
+                       "type":  "multiple_choice"
+                   },
+                   {
+                       "id":  "c28I66aZgVW9",
+                       "title":  "How will you handle financing or payment?",
+                       "ref":  "6d3e06f9-4dbe-4f4a-89ca-747283dfc321",
+                       "properties":  {
+                                          "randomize":  false,
+                                          "allow_multiple_selection":  false,
+                                          "allow_other_choice":  false,
+                                          "vertical_alignment":  true,
+                                          "choices":  [
+                                                          {
+                                                              "id":  "2g4oYskDmPE7",
+                                                              "ref":  "1a9df7d6-31ff-464b-9c8c-54982d947932",
+                                                              "label":  "Cash"
+                                                          },
+                                                          {
+                                                              "id":  "oGH11Ug6UzVh",
+                                                              "ref":  "6a8b22e2-3cb4-4bd1-802b-054e8e758673",
+                                                              "label":  "Pre-approved"
+                                                          },
+                                                          {
+                                                              "id":  "iNg8CFjtgSJJ",
+                                                              "ref":  "d62369c5-72a5-4b3e-9cbf-7be2fae23612",
+                                                              "label":  "Not yet arranged"
+                                                          }
+                                                      ]
+                                      },
+                       "validations":  {
+                                           "required":  true
+                                       },
+                       "type":  "multiple_choice"
+                   },
+                   {
+                       "id":  "hhKBfK5tA7yh",
+                       "title":  "What type of property are you interested in?",
+                       "ref":  "cecb112a-93f1-4fc1-9e9e-052c24699f43",
+                       "properties":  {
+                                          "randomize":  false,
+                                          "allow_multiple_selection":  false,
+                                          "allow_other_choice":  false,
+                                          "vertical_alignment":  true,
+                                          "choices":  [
+                                                          {
+                                                              "id":  "pSfdREnl6MUc",
+                                                              "ref":  "187b2950-e266-4eb9-b7a4-27b442646259",
+                                                              "label":  "Condo"
+                                                          },
+                                                          {
+                                                              "id":  "Mj2Mhb86aOXq",
+                                                              "ref":  "479766d9-df85-4fc3-be61-4c5729279c60",
+                                                              "label":  "Single Family"
+                                                          },
+                                                          {
+                                                              "id":  "rR2gP55mVXVW",
+                                                              "ref":  "bff63a07-7f36-491b-a650-a4fd27571ddb",
+                                                              "label":  "Townhouse"
+                                                          },
+                                                          {
+                                                              "id":  "4yMKapgs1Afy",
+                                                              "ref":  "43b9ddd3-8f6c-43d5-823f-609f424a4409",
+                                                              "label":  "Apartment"
+                                                          },
+                                                          {
+                                                              "id":  "aQxti76ovP16",
+                                                              "ref":  "a1559ee4-1450-4982-8c75-320891d8d744",
+                                                              "label":  "Land"
+                                                          },
+                                                          {
+                                                              "id":  "GZEBq0l3xcO3",
+                                                              "ref":  "7603eb0a-cc54-4c58-b565-7bf0657c3fb2",
+                                                              "label":  "Other"
+                                                          }
+                                                      ]
+                                      },
+                       "validations":  {
+                                           "required":  false
+                                       },
+                       "type":  "multiple_choice"
+                   },
+                   {
+                       "id":  "98mlxEIINyVc",
+                       "title":  "Tell us more about what you want",
+                       "ref":  "6693957e-ce20-48b5-819e-e9253c01933b",
+                       "properties":  {
+                                          "description":  "Mention preferred features, purpose of purchase, or any specific requirements."
+                                      },
+                       "validations":  {
+                                           "required":  true
+                                       },
+                       "type":  "long_text"
+                   }
+               ],
+    "created_at":  "2026-02-21T13:21:26+00:00",
+    "last_updated_at":  "2026-02-25T23:28:19+00:00",
+    "published_at":  "2026-02-21T13:46:02+00:00",
+    "_links":  {
+                   "display":  "https://form.typeform.com/to/CIpCMsBZ",
+                   "responses":  "https://api.typeform.com/forms/CIpCMsBZ/responses"
+               }
+}
