@@ -9,9 +9,9 @@ const envSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string().min(1),
   GOOGLE_REFRESH_TOKEN: z.string().min(1),
   TYPEFORM_API_TOKEN: z.string().min(1).optional(),
-  OPENAI_API_KEY: z.string().min(1),
+  OPENAI_API_KEY: z.string().min(1).optional(),
   CRON_SECRET: z.string().min(1),
-  SENTRY_DSN: z.string().min(1),
+  SENTRY_DSN: z.string().min(1).optional(),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PREMIUM_BUDGET_THRESHOLD: z
     .string()
