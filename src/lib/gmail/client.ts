@@ -171,3 +171,11 @@ export async function listInboundGmailMessages(after: Date | null): Promise<Inbo
     .filter((item): item is InboundGmailMessage => item !== null)
     .sort((a, b) => a.receivedAt.getTime() - b.receivedAt.getTime());
 }
+
+export async function checkGmailConnection(): Promise<{ emailAddress: string | null }> {
+  const gmail = getGmailClient();
+  const profile = await gmail.users.getProfile({ userId: 'me' });
+  return {
+    emailAddress: profile.data.emailAddress ?? null,
+  };
+}

@@ -420,6 +420,25 @@ export class EmailsRepository {
     return records.map((record) => mapEmail(record.fields));
   }
 
+  async listDrafts(params?: { status?: DraftStatus; limit?: number }): Promise<EmailRecord[]> {
+    const limit = Math.max(1, Math.min(params?.limit ?? 50, 200));
+    const formulaParts = ['{direction}="Draft"'];
+    if (params?.status) {
+      formulaParts.push(`{draft_status}="${escFormula(params.status)}"`);
+    }
+
+    const filterByFormula =
+      formulaParts.length > 1 ? `AND(${formulaParts.join(',')})` : formulaParts[0];
+
+    const records = await this.client.listRecords<EmailFields>('emails', {
+      filterByFormula,
+      sortField: 'updated_at',
+      sortDirection: 'desc',
+      maxRecords: limit,
+    });
+    return records.map((record) => mapEmail(record.fields));
+  }
+
   async countInboundByLeadAndThread(leadId: string, threadId: string): Promise<number> {
     const records = await this.client.listRecords<EmailFields>('emails', {
       filterByFormula: `AND({lead_id}="${escFormula(leadId)}",{thread_id}="${escFormula(threadId)}",{direction}="Inbound")`,

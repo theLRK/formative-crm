@@ -40,7 +40,7 @@ export function middleware(request: NextRequest): NextResponse {
 
   if (pathname === '/api/v1/emails/poll') {
     const env = getEnv();
-    const cronSecret = request.headers.get('x-cron-secret');
+    const cronSecret = request.headers.get('x-cron-secret') ?? getBearerToken(request);
     if (!cronSecret || cronSecret !== env.CRON_SECRET) {
       return NextResponse.json(
         {

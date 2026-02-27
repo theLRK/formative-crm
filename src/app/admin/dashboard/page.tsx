@@ -17,6 +17,16 @@ interface LeadsResponse {
   };
 }
 
+interface UpdateLeadResponse {
+  success: boolean;
+  data?: {
+    lead: Lead;
+  };
+  error?: {
+    message: string;
+  };
+}
+
 const STATUS_OPTIONS: Array<{ label: string; value: '' | PipelineStatus }> = [
   { label: 'All Statuses', value: '' },
   { label: 'New', value: 'New' },
@@ -27,6 +37,18 @@ const STATUS_OPTIONS: Array<{ label: string; value: '' | PipelineStatus }> = [
   { label: 'Unqualified', value: 'Unqualified' },
   { label: 'Closed', value: 'Closed' },
 ];
+
+const PIPELINE_EDIT_OPTIONS: PipelineStatus[] = [
+  'New',
+  'Contacted',
+  'Interested',
+  'Question',
+  'Objection',
+  'Unqualified',
+  'Closed',
+];
+
+type SortOption = 'updated_desc' | 'score_desc' | 'score_asc' | 'name_asc' | 'priority_desc';
 
 function formatDate(value: string | null): string {
   if (!value) return '-';
@@ -61,6 +83,9 @@ export default function AdminDashboardPage() {
   const [status, setStatus] = useState<'' | PipelineStatus>('');
   const [minScore, setMinScore] = useState('');
   const [query, setQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('priority_desc');
+  const [statusDrafts, setStatusDrafts] = useState<Record<string, PipelineStatus>>({});
+  const [savingLeadId, setSavingLeadId] = useState<string | null>(null);
 
   async function fetchLeads(): Promise<void> {
     setLoading(true);
@@ -77,6 +102,11 @@ export default function AdminDashboardPage() {
         return;
       }
       setLeads(payload.data.leads);
+      const nextDrafts: Record<string, PipelineStatus> = {};
+      for (const lead of payload.data.leads) {
+        nextDrafts[lead.id] = lead.pipelineStatus;
+      }
+      setStatusDrafts(nextDrafts);
     } catch (error) {
       if (error instanceof ApiRequestError) {
         setError(error.message);
@@ -86,6 +116,37 @@ export default function AdminDashboardPage() {
       setLeads([]);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function saveLeadStatus(leadId: string): Promise<void> {
+    const nextStatus = statusDrafts[leadId];
+    if (!nextStatus) return;
+    setSavingLeadId(leadId);
+    setError(null);
+    try {
+      const payload = await apiRequest<UpdateLeadResponse>(`/api/v1/leads/${leadId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pipelineStatus: nextStatus }),
+      });
+      if (!payload.success || !payload.data?.lead) {
+        setError(payload.error?.message ?? 'Failed to update lead status');
+        return;
+      }
+      const updatedLead = payload.data.lead;
+      setLeads((current) =>
+        current.map((lead) => (lead.id === updatedLead.id ? updatedLead : lead)),
+      );
+      setStatusDrafts((current) => ({
+        ...current,
+        [updatedLead.id]: updatedLead.pipelineStatus,
+      }));
+    } catch (err) {
+      if (err instanceof ApiRequestError) setError(err.message);
+      else setError('Network error while updating status');
+    } finally {
+      setSavingLeadId(null);
     }
   }
 
@@ -117,6 +178,26 @@ export default function AdminDashboardPage() {
     });
   }, [leads, query]);
 
+  const sortedLeads = useMemo(() => {
+    const entries = [...filteredLeads];
+    if (sortBy === 'score_desc') {
+      entries.sort((a, b) => safeNumber(b.totalScore) - safeNumber(a.totalScore));
+    } else if (sortBy === 'score_asc') {
+      entries.sort((a, b) => safeNumber(a.totalScore) - safeNumber(b.totalScore));
+    } else if (sortBy === 'name_asc') {
+      entries.sort((a, b) => safeText(a.fullName, '').localeCompare(safeText(b.fullName, '')));
+    } else if (sortBy === 'updated_desc') {
+      entries.sort((a, b) => {
+        const left = new Date(a.updatedAt).getTime();
+        const right = new Date(b.updatedAt).getTime();
+        return right - left;
+      });
+    } else {
+      entries.sort((a, b) => buildLeadInsight(b).priorityScore - buildLeadInsight(a).priorityScore);
+    }
+    return entries;
+  }, [filteredLeads, sortBy]);
+
   const portfolioInsight = useMemo(() => buildPortfolioInsight(leads), [leads]);
 
   const priorityQueue = useMemo(() => {
@@ -144,6 +225,18 @@ export default function AdminDashboardPage() {
             className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
           >
             Priority Queue
+          </Link>
+          <Link
+            href="/admin/drafts"
+            className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+          >
+            Draft Queue
+          </Link>
+          <Link
+            href="/admin/settings"
+            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+          >
+            Settings
           </Link>
           <Link
             href="/admin/logs"
@@ -196,7 +289,7 @@ export default function AdminDashboardPage() {
       </section>
 
       <section className="mt-6 rounded-lg bg-white p-4 shadow-sm">
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
           <select
             value={status}
             onChange={(event) => setStatus(event.target.value as '' | PipelineStatus)}
@@ -221,9 +314,20 @@ export default function AdminDashboardPage() {
             type="text"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            className="md:col-span-2 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+            className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
             placeholder="Search by name, email, status, or tier"
           />
+          <select
+            value={sortBy}
+            onChange={(event) => setSortBy(event.target.value as SortOption)}
+            className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+          >
+            <option value="priority_desc">Sort: Priority (High-Low)</option>
+            <option value="score_desc">Sort: Score (High-Low)</option>
+            <option value="score_asc">Sort: Score (Low-High)</option>
+            <option value="updated_desc">Sort: Updated (Newest)</option>
+            <option value="name_asc">Sort: Name (A-Z)</option>
+          </select>
         </div>
 
         {error ? <div className="mt-4 rounded-lg bg-red-100 px-4 py-2 text-sm text-red-700">{error}</div> : null}
@@ -289,14 +393,14 @@ export default function AdminDashboardPage() {
                     Loading leads...
                   </td>
                 </tr>
-              ) : filteredLeads.length === 0 ? (
+              ) : sortedLeads.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-3 py-8 text-center text-sm text-gray-500">
                     No leads found.
                   </td>
                 </tr>
               ) : (
-                filteredLeads.map((lead) => (
+                sortedLeads.map((lead) => (
                   <tr key={lead.id}>
                     <td className="px-3 py-3 text-sm text-gray-900">
                       <Link className="font-medium text-blue-700 hover:text-blue-800" href={`/admin/leads/${lead.id}`}>
@@ -306,7 +410,34 @@ export default function AdminDashboardPage() {
                     </td>
                     <td className="px-3 py-3 text-sm text-gray-800">{safeText(lead.tier, 'Cold')}</td>
                     <td className="px-3 py-3 text-sm text-gray-800">{safeNumber(lead.totalScore).toFixed(1)}</td>
-                    <td className="px-3 py-3 text-sm text-gray-800">{safeText(lead.pipelineStatus, 'New')}</td>
+                    <td className="px-3 py-3 text-sm text-gray-800">
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={statusDrafts[lead.id] ?? lead.pipelineStatus}
+                          onChange={(event) =>
+                            setStatusDrafts((current) => ({
+                              ...current,
+                              [lead.id]: event.target.value as PipelineStatus,
+                            }))
+                          }
+                          className="rounded-lg border border-gray-300 px-2 py-1 text-xs text-gray-900"
+                        >
+                          {PIPELINE_EDIT_OPTIONS.map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => void saveLeadStatus(lead.id)}
+                          disabled={savingLeadId === lead.id}
+                          className="rounded bg-gray-200 px-2 py-1 text-xs font-medium text-gray-900 hover:bg-gray-300 disabled:opacity-60"
+                        >
+                          {savingLeadId === lead.id ? 'Saving' : 'Save'}
+                        </button>
+                      </div>
+                    </td>
                     <td className="px-3 py-3 text-sm text-gray-600">{formatDate(lead.lastEmailSentAt)}</td>
                   </tr>
                 ))
