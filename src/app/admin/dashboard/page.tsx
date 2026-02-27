@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { apiRequest, ApiRequestError } from '@/lib/http/client-api';
+import { buildLeadInsight, buildPortfolioInsight, type LeadUrgency } from '@/lib/leads/insights';
 import type { Lead, PipelineStatus } from '@/types';
 
 interface LeadsResponse {
@@ -44,6 +45,13 @@ function safeNumber(value: unknown): number {
     if (Number.isFinite(parsed)) return parsed;
   }
   return 0;
+}
+
+function urgencyStyles(urgency: LeadUrgency): string {
+  if (urgency === 'Critical') return 'bg-red-100 text-red-800';
+  if (urgency === 'High') return 'bg-amber-100 text-amber-800';
+  if (urgency === 'Medium') return 'bg-blue-100 text-blue-800';
+  return 'bg-gray-100 text-gray-700';
 }
 
 export default function AdminDashboardPage() {
@@ -109,6 +117,16 @@ export default function AdminDashboardPage() {
     });
   }, [leads, query]);
 
+  const portfolioInsight = useMemo(() => buildPortfolioInsight(leads), [leads]);
+
+  const priorityQueue = useMemo(() => {
+    return filteredLeads
+      .filter((lead) => lead.pipelineStatus !== 'Closed')
+      .map((lead) => ({ lead, insight: buildLeadInsight(lead) }))
+      .sort((a, b) => b.insight.priorityScore - a.insight.priorityScore)
+      .slice(0, 5);
+  }, [filteredLeads]);
+
   const hotCount = leads.filter((lead) => lead.tier === 'Hot').length;
   const warmCount = leads.filter((lead) => lead.tier === 'Warm').length;
   const coldCount = leads.filter((lead) => lead.tier === 'Cold').length;
@@ -144,7 +162,7 @@ export default function AdminDashboardPage() {
         </div>
       </header>
 
-      <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
         <div className="rounded-lg bg-blue-50 p-4">
           <p className="text-sm font-medium text-blue-800">Hot Leads</p>
           <p className="mt-1 text-2xl font-semibold text-blue-900">{hotCount}</p>
@@ -156,6 +174,18 @@ export default function AdminDashboardPage() {
         <div className="rounded-lg bg-gray-100 p-4">
           <p className="text-sm font-medium text-gray-700">Cold Leads</p>
           <p className="mt-1 text-2xl font-semibold text-gray-900">{coldCount}</p>
+        </div>
+        <div className="rounded-lg bg-red-50 p-4">
+          <p className="text-sm font-medium text-red-800">SLA Risk</p>
+          <p className="mt-1 text-2xl font-semibold text-red-900">{portfolioInsight.slaRiskCount}</p>
+        </div>
+        <div className="rounded-lg bg-indigo-50 p-4">
+          <p className="text-sm font-medium text-indigo-800">High Priority</p>
+          <p className="mt-1 text-2xl font-semibold text-indigo-900">{portfolioInsight.highPriorityCount}</p>
+        </div>
+        <div className="rounded-lg bg-emerald-50 p-4">
+          <p className="text-sm font-medium text-emerald-800">30d Viewing Forecast</p>
+          <p className="mt-1 text-2xl font-semibold text-emerald-900">{portfolioInsight.projectedViewings30d}</p>
         </div>
       </section>
 
@@ -191,6 +221,39 @@ export default function AdminDashboardPage() {
         </div>
 
         {error ? <div className="mt-4 rounded-lg bg-red-100 px-4 py-2 text-sm text-red-700">{error}</div> : null}
+
+        <div className="mt-4 rounded-lg border border-gray-200 p-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-700">Smart Priority Queue</h2>
+            <span className="text-xs text-gray-500">Adapted from competitor-style CRM prioritization</span>
+          </div>
+          {loading ? (
+            <p className="mt-3 text-sm text-gray-500">Building queue...</p>
+          ) : priorityQueue.length === 0 ? (
+            <p className="mt-3 text-sm text-gray-500">No active leads in queue.</p>
+          ) : (
+            <div className="mt-3 space-y-2">
+              {priorityQueue.map(({ lead, insight }) => (
+                <div key={lead.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-gray-50 px-3 py-2">
+                  <div>
+                    <Link href={`/admin/leads/${lead.id}`} className="text-sm font-medium text-blue-700 hover:text-blue-800">
+                      {safeText(lead.fullName, 'Unnamed Lead')}
+                    </Link>
+                    <p className="text-xs text-gray-600">{insight.nextAction}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-gray-200 px-2 py-1 text-xs font-medium text-gray-800">
+                      Priority {insight.priorityScore}
+                    </span>
+                    <span className={`rounded-full px-2 py-1 text-xs font-medium ${urgencyStyles(insight.urgency)}`}>
+                      {insight.urgency}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         <div className="mt-4 overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">

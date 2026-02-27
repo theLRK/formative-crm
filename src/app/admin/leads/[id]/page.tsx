@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { apiRequest, ApiRequestError } from '@/lib/http/client-api';
+import { buildLeadInsight, type LeadUrgency } from '@/lib/leads/insights';
 import type { EmailRecord, Lead, PipelineStatus } from '@/types';
 
 interface LeadDetailPageProps {
@@ -55,6 +56,13 @@ function directionStyles(direction: EmailRecord['direction']): string {
   return 'bg-amber-100 text-amber-800';
 }
 
+function urgencyStyles(urgency: LeadUrgency): string {
+  if (urgency === 'Critical') return 'bg-red-100 text-red-800';
+  if (urgency === 'High') return 'bg-amber-100 text-amber-800';
+  if (urgency === 'Medium') return 'bg-blue-100 text-blue-800';
+  return 'bg-gray-100 text-gray-700';
+}
+
 export default function LeadDetailPage({ params }: LeadDetailPageProps) {
   const [lead, setLead] = useState<Lead | null>(null);
   const [emails, setEmails] = useState<EmailRecord[]>([]);
@@ -102,6 +110,8 @@ export default function LeadDetailPage({ params }: LeadDetailPageProps) {
     const pending = drafts.find((item) => item.draftStatus === 'PendingApproval');
     return pending ?? drafts[0] ?? null;
   }, [emails]);
+
+  const leadInsight = useMemo(() => (lead ? buildLeadInsight(lead) : null), [lead]);
 
   useEffect(() => {
     if (activeDraft) {
@@ -215,7 +225,7 @@ export default function LeadDetailPage({ params }: LeadDetailPageProps) {
         </Link>
       </header>
 
-      <section className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <section className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-4">
         <div className="rounded-lg bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900">Lead Metadata</h2>
           <div className="mt-4 space-y-2 text-sm text-gray-700">
@@ -283,6 +293,33 @@ export default function LeadDetailPage({ params }: LeadDetailPageProps) {
               <span className="font-medium">TotalScore:</span> {safeNumber(lead.totalScore).toFixed(1)}
             </p>
           </div>
+        </div>
+
+        <div className="rounded-lg bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-gray-900">Smart Suggestions</h2>
+          {leadInsight ? (
+            <div className="mt-4 space-y-3 text-sm text-gray-700">
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
+                  Priority {leadInsight.priorityScore}
+                </span>
+                <span className={`rounded-full px-2 py-1 text-xs font-medium ${urgencyStyles(leadInsight.urgency)}`}>
+                  {leadInsight.urgency}
+                </span>
+              </div>
+              <p>
+                <span className="font-medium">Next Action:</span> {leadInsight.nextAction}
+              </p>
+              <p>
+                <span className="font-medium">Rationale:</span> {leadInsight.rationale}
+              </p>
+              <p>
+                <span className="font-medium">SLA Risk:</span> {leadInsight.slaRisk ? 'Yes' : 'No'}
+              </p>
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-gray-600">Insight unavailable.</p>
+          )}
         </div>
 
         <div className="rounded-lg bg-white p-6 shadow-sm">
