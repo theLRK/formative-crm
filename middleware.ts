@@ -7,8 +7,11 @@ import { consumeRateLimit } from '@/lib/security';
 const PUBLIC_API_PATHS = new Set([
   '/api/v1/auth/login',
   '/api/v1/auth/refresh',
+  '/api/v1/auth/firebase/exchange',
   '/api/v1/leads/webhook',
 ]);
+
+const PUBLIC_ADMIN_PATHS = new Set(['/admin/login', '/admin/signup', '/admin/forgot-password']);
 
 function unauthorizedResponseFor(pathname: string, request: NextRequest): NextResponse {
   if (pathname.startsWith('/api/')) {
@@ -68,7 +71,7 @@ export function middleware(request: NextRequest): NextResponse {
     return NextResponse.next();
   }
 
-  const isAdminPage = pathname.startsWith('/admin') && pathname !== '/admin/login';
+  const isAdminPage = pathname.startsWith('/admin') && !PUBLIC_ADMIN_PATHS.has(pathname);
   const isProtectedApi = pathname.startsWith('/api/v1');
   if (!isAdminPage && !isProtectedApi) return NextResponse.next();
 
@@ -106,4 +109,3 @@ export function middleware(request: NextRequest): NextResponse {
 export const config = {
   matcher: ['/admin/:path*', '/api/v1/:path*'],
 };
-

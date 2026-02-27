@@ -124,16 +124,28 @@ export default function AdminQueuePage() {
 
   async function runBulkStatusUpdate(status: PipelineStatus): Promise<void> {
     if (selectedIds.size === 0) return;
+    const selected = Array.from(selectedIds);
+    const previousLeads = leads;
     setRunningBulk(true);
     setError(null);
     setMessage(null);
+    setLeads((current) =>
+      current.map((lead) =>
+        selected.includes(lead.id)
+          ? {
+              ...lead,
+              pipelineStatus: status,
+            }
+          : lead,
+      ),
+    );
 
     try {
       const response = await apiRequest<BulkUpdateResponse>('/api/v1/leads/bulk-update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          leadIds: Array.from(selectedIds),
+          leadIds: selected,
           pipelineStatus: status,
         }),
       });
@@ -150,8 +162,10 @@ export default function AdminQueuePage() {
         setError(
           `${response.data.failedCount} update(s) failed. ${response.data.updatedCount} updated. ${failurePreview}`,
         );
+        setLeads(previousLeads);
       }
     } catch (err) {
+      setLeads(previousLeads);
       if (err instanceof ApiRequestError) setError(err.message);
       else setError('Network error while running bulk update');
     }

@@ -38,6 +38,10 @@ export const refreshSchema = z.object({
   refreshToken: z.string().min(20),
 });
 
+export const firebaseExchangeSchema = z.object({
+  idToken: z.string().min(20),
+});
+
 export const updateLeadSchema = z.object({
   pipelineStatus,
 });
