@@ -140,6 +140,12 @@ export default function AdminDashboardPage() {
         </div>
         <div className="flex items-center gap-2">
           <Link
+            href="/admin/queue"
+            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          >
+            Priority Queue
+          </Link>
+          <Link
             href="/admin/logs"
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >
