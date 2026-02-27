@@ -42,6 +42,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         status: 401,
       });
     }
+    if (!identity.emailVerified) {
+      return NextResponse.json(buildApiError('FORBIDDEN', 'Please verify your email before signing in.'), {
+        status: 403,
+      });
+    }
 
     const { users, sessions } = createRepositories();
     let user = await users.findByEmail(identity.email);

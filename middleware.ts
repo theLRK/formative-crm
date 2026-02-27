@@ -11,7 +11,12 @@ const PUBLIC_API_PATHS = new Set([
   '/api/v1/leads/webhook',
 ]);
 
-const PUBLIC_ADMIN_PATHS = new Set(['/admin/login', '/admin/signup', '/admin/forgot-password']);
+const PUBLIC_ADMIN_PATHS = new Set([
+  '/admin/login',
+  '/admin/signup',
+  '/admin/forgot-password',
+  '/admin/verify-email',
+]);
 
 function unauthorizedResponseFor(pathname: string, request: NextRequest): NextResponse {
   if (pathname.startsWith('/api/')) {

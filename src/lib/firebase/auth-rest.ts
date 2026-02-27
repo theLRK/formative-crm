@@ -113,3 +113,10 @@ export async function firebaseSendPasswordReset(email: string): Promise<void> {
     email,
   });
 }
+
+export async function firebaseSendEmailVerification(idToken: string): Promise<void> {
+  await postFirebase('accounts:sendOobCode', {
+    requestType: 'VERIFY_EMAIL',
+    idToken,
+  });
+}

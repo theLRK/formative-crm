@@ -72,7 +72,13 @@ export default function AdminLoginPage() {
       router.push('/admin/dashboard');
       router.refresh();
     } catch (err) {
-      if (err instanceof ApiRequestError) setError(err.message);
+      if (err instanceof ApiRequestError) {
+        if (err.status === 403) {
+          router.push(`/admin/verify-email?email=${encodeURIComponent(email)}`);
+          return;
+        }
+        setError(err.message);
+      }
       else if (err instanceof Error) setError(err.message);
       else setError('Network error. Please try again.');
     } finally {
