@@ -17,10 +17,17 @@ interface LeadsResponse {
   };
 }
 
-interface UpdateLeadResponse {
+interface BulkUpdateResponse {
   success: boolean;
   data?: {
-    lead: Lead;
+    requestedCount: number;
+    updatedCount: number;
+    failedCount: number;
+    pipelineStatus: PipelineStatus;
+    failures: Array<{
+      leadId: string;
+      reason: string;
+    }>;
   };
   error?: {
     message: string;
@@ -121,26 +128,32 @@ export default function AdminQueuePage() {
     setError(null);
     setMessage(null);
 
-    let successCount = 0;
-    let failureCount = 0;
-    for (const id of selectedIds) {
-      try {
-        const response = await apiRequest<UpdateLeadResponse>(`/api/v1/leads/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pipelineStatus: status }),
-        });
-        if (response.success && response.data?.lead) successCount += 1;
-        else failureCount += 1;
-      } catch {
-        failureCount += 1;
-      }
-    }
+    try {
+      const response = await apiRequest<BulkUpdateResponse>('/api/v1/leads/bulk-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          leadIds: Array.from(selectedIds),
+          pipelineStatus: status,
+        }),
+      });
 
-    if (failureCount === 0) {
-      setMessage(`${successCount} lead(s) updated to ${status}.`);
-    } else {
-      setError(`${failureCount} update(s) failed. ${successCount} lead(s) updated.`);
+      if (!response.success || !response.data) {
+        setError(response.error?.message ?? 'Bulk update failed.');
+      } else if (response.data.failedCount === 0) {
+        setMessage(`${response.data.updatedCount} lead(s) updated to ${status}.`);
+      } else {
+        const failurePreview = response.data.failures
+          .slice(0, 3)
+          .map((failure) => `${failure.leadId}: ${failure.reason}`)
+          .join(' | ');
+        setError(
+          `${response.data.failedCount} update(s) failed. ${response.data.updatedCount} updated. ${failurePreview}`,
+        );
+      }
+    } catch (err) {
+      if (err instanceof ApiRequestError) setError(err.message);
+      else setError('Network error while running bulk update');
     }
 
     setSelectedIds(new Set());

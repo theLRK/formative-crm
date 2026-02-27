@@ -42,6 +42,11 @@ export const updateLeadSchema = z.object({
   pipelineStatus,
 });
 
+export const bulkUpdateLeadsSchema = z.object({
+  leadIds: z.array(z.string().min(1)).min(1).max(100),
+  pipelineStatus,
+});
+
 export const sendDraftSchema = z.object({
   draftId: z.string().uuid(),
   threadId: z.string().min(5),
