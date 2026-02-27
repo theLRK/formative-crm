@@ -12,6 +12,10 @@ import {
 } from '@/lib/leads';
 import { leadWebhookSchema } from '@/lib/validation';
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
 function readPremiumBudgetThreshold(): number {
   const raw = process.env.PREMIUM_BUDGET_THRESHOLD?.trim();
   if (!raw) return 100_000_000;
@@ -22,6 +26,26 @@ function readPremiumBudgetThreshold(): number {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const rawPayload = await request.json().catch(() => null);
+  const isTypeformTestRequest = request.headers.get('typeform-test-request') === 'true';
+  const isTypeformVerificationEvent =
+    isRecord(rawPayload) &&
+    typeof rawPayload.event_type === 'string' &&
+    rawPayload.event_type.toLowerCase().includes('verification');
+
+  if (isTypeformTestRequest || isTypeformVerificationEvent) {
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          accepted: true,
+          testRequest: true,
+          message: 'Typeform test request acknowledged',
+        },
+      },
+      { status: 200 },
+    );
+  }
+
   const headerIdempotencyKey = request.headers.get('x-idempotency-key') ?? undefined;
   const payloadWithIdempotency = normalizeLeadWebhookPayload(rawPayload, {
     headerIdempotencyKey,
